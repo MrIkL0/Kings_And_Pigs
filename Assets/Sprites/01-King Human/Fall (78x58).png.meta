@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 780d38bcfe82b6c459cdd02da7f2ba11
+guid: a5c40e2c83fc9f04f892df03f49f4d30
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -117,10 +117,10 @@ TextureImporter:
       name: Fall (78x58)_0
       rect:
         serializedVersion: 2
-        x: 9
-        y: 14
-        width: 37
-        height: 29
+        x: 0
+        y: 0
+        width: 78
+        height: 58
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

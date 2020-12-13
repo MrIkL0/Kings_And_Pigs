@@ -6,85 +6,93 @@ public class PlayerMove : MonoBehaviour
 {
     public Rigidbody2D rb;
     public Animator anim;
-
-    // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-    }
 
-    // Update is called once per frame
+        //-v- Для автоматического присваивания в переменную, радиуса коллайдера объекта «GroundCheck»
+        GroundCheckRadius = GroundCheck.GetComponent<CircleCollider2D>().radius;
+    }
+    //------- Функция/метод, выполняемая каждый кадр в игре ---------
     void Update()
     {
-        Run();
+        Damage();
+        Walk();
         Reflect();
         Jump();
-        CheckingPlatform();
-
+        CheckingGround();
     }
-    public Vector2 moveVector;
-    public float speed = 2f;
 
+    public Transform punch;
+    public float punchRadius;
 
-    void Run()
+    void Damage()
     {
-        //To Do beter control
-        moveVector.x = Input.GetAxis("Horizontal");
+        if(Input.GetKey(KeyCode.R))
+        {
+            anim.SetTrigger("press");
+        }
 
-        anim.SetFloat("RunX", Mathf.Abs(moveVector.x));
-        rb.velocity = new Vector2(moveVector.x * speed, rb.velocity.y);
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Fight2D.Action(punch.position, punchRadius, 11, 50, false);
+        }
+        //Здесь мы сообщаем функции, -точку контакта, -радиус, -номер слоя юнита, 
+        // -урон по цели, и в конце обозначаем что урон получит только одна цель
+        //(ближайшая от точки). Соответственно, если поставить true, урон получат все юниты попавшие в радиус
+        //атаки, это удобно для супер приема например.
+
     }
-
+    //------- Функция/метод для перемещения персонажа по горизонтали ---------
+    public Vector2 moveVector;
+    public int speed = 3;
+    void Walk()
+    {
+        moveVector.x = Input.GetAxisRaw("Horizontal");
+        rb.velocity = new Vector2(moveVector.x * speed, rb.velocity.y);
+        anim.SetFloat("moveX", Mathf.Abs(moveVector.x));
+    }
+    //------- Функция/метод для отражения персонажа по горизонтали ---------
     public bool faceRight = true;
     void Reflect()
     {
-        if((moveVector.x > 0 && !faceRight) || (moveVector.x < 0 && faceRight))
+        if ((moveVector.x > 0 && faceRight) || (moveVector.x < 0 && !faceRight))
         {
             transform.localScale *= new Vector2(-1, 1);
             faceRight = !faceRight;
         }
     }
-
-
-    public bool onPlatform;
-    public Transform PlatformCheck;
-    public float checkRadius = 0.25f;
-    public LayerMask Platform;
-
-    void CheckingPlatform()
+    //------- Функция/метод для обнаружения земли ---------
+    public bool onGround;
+    public LayerMask Ground;
+    public Transform GroundCheck;
+    private float GroundCheckRadius;
+    void CheckingGround()
     {
-        onPlatform = Physics2D.OverlapCircle(PlatformCheck.position, checkRadius, Platform);
-        anim.SetBool("onPlatform", onPlatform);
+        //onGround = Physics2D.OverlapBox();
+        onGround = Physics2D.OverlapCircle(GroundCheck.position, GroundCheckRadius, Ground);
+        anim.SetBool("onGround", onGround);
     }
-
-    //Пофіксити прижок вліво при ходьбі, працює гріше ніж прижок в право
-
-    public float jumpForce = 210;
-    private int jumpCounte = 0;
-    public int maxJumpValue = 2;
-    //private bool jumpControl;
-    //private int jumpIteration = 0;
-    //public int jumpValueIteration = 60;
-
-    //
+    //------- Функция/метод для прыжка ---------
+    public int jumpForce = 0;
     void Jump()
     {
-        if ((Input.GetKeyDown(KeyCode.Space) | Input.GetKeyDown(KeyCode.UpArrow)) && (onPlatform || (++jumpCounte < maxJumpValue)))
+        if (Input.GetKeyDown(KeyCode.S))
         {
-            rb.AddForce(Vector2.up * jumpForce);
-            //if (onPlatform) { jumpControl = true; }
+            Physics2D.IgnoreLayerCollision(9, 10, true);
+            Invoke("IgnoreLayerOff", 0.2f);
         }
-        if (onPlatform) { jumpCounte = 0; }
-        //else { jumpControl = false; }
+        if (onGround && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W)))
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        }
+    }
 
-        //if (jumpControl)
-        //{
-        //    if (jumpIteration++ < jumpValueIteration)
-        //    {
-        //        rb.AddForce(Vector2.up * jumpForce / jumpIteration);
-        //    }
-        //}
-        //else { jumpIteration = 0; }
+
+    void IgnoreLayerOff()
+    {
+        Physics2D.IgnoreLayerCollision(9, 10, false);
+
     }
 }
